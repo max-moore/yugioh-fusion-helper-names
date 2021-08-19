@@ -1,6 +1,6 @@
 # yugioh-fusion-helper
 Web scraper that gets every fusion of the game "Yu-Gi-Oh! Forbidden Memories" (PlayStation 1), given a set of card 
-identifications. It was made quicky to win some duels in the game. If you have time, you can improve so much thing 
+identifications. It was made quickly to win some duels in the game. If you have time, you can improve so much thing 
 on this very raw script, like put all in csv files or make a nice GUI. Have fun with retro games! :)
 
 ![Screenshot of script being running](./static/img/readme_test.png)
