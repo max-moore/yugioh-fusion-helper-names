@@ -22,9 +22,9 @@ Or executing it with python 3
 ```
 
 ## Windows users
-It is posible that the exe file will be recognize as a virus by Windows Defender. It need this to be ignore in order
+It is posible that the exe file will be recognize as malware by Windows Defender. It need this to be ignore in order
 to execute the program. The only thing that is doing is connecting to the site "https://yugipedia.com" to get the cards
-data. If you don't want to ignore the antivirus's warning you can executing the script .py with python (this requires 
+data. If you don't want to ignore the antivirus's warning you can execute the script .py with python (this requires 
 python 3 installed).
 
 The exe file in the "/dist" folder was compile using PyInstaller (https://www.pyinstaller.org/) with the following 
