@@ -1,13 +1,13 @@
 # Yu-Gi-Oh! Forbidden Memories Fusion Helper (PlayStation 1)
 # Based on https://yugipedia.com data
-# -/-\-El coni-/-\-
+# Ignacio Rodriguez Abraham (nacho.rodriguez.a@gmail.com)
 
 import sys, requests
 from bs4 import BeautifulSoup
 from typing import List
 
 
-def card_fusions_scrap(cards_ids: List[str], gui_mode=False) -> dict:
+def card_fusions_scrp(cards_ids: List[str], gui_mode=False) -> dict:
     if cards_ids == None or len(cards_ids) < 1:
         return {}
 
@@ -21,7 +21,7 @@ def card_fusions_scrap(cards_ids: List[str], gui_mode=False) -> dict:
     ]
 #    ritual_summons_page = BASE_URL + "/wiki/Yu-Gi-Oh!_Forbidden_Memories#Ritual_Summon"
 
-    # Scrap
+    # Scrp
     fusions_counter = 0
     atk_max = 0
     def_max = 0
@@ -79,7 +79,10 @@ def card_fusions_scrap(cards_ids: List[str], gui_mode=False) -> dict:
                             if def_max > atk_max:
                                 max_changed = True
                         if max_changed:
-                            best_card_merge_type = '[' + ' + '.join(merge_type) + ']'
+                            if len(merge_type) > 0:
+                                best_card_merge_type = '[' + ' + '.join(merge_type) + ']'
+                            else:
+                                best_card_merge_type = '[Specific fusion]'
                             best_card_materials = fusion_materials
                             best_card_id = merged_card_stats_rows[5].text.strip()
                             best_card = '====> ' \
@@ -128,7 +131,7 @@ def card_fusions_scrap(cards_ids: List[str], gui_mode=False) -> dict:
 # Welcome and help print
 def print_welcome_and_help():
     print('Yu-Gi-Oh! Forbidden Memories Fusion Helper\n')
-    print('Usage: python yugiparser.py [-l CARDS_ID_LIST]')
+    print('Usage: python yugioh_fusion_helper.py [-l CARDS_ID_LIST]')
     print('CARDS_ID_LIST example: 008,125,357,695,224\n')
 
 # Entry point: CLI help
@@ -146,17 +149,13 @@ def entry_point_list_fusions():
         elif len(card_id) == 2:
             card_id = '0' + card_id
         cards_ids.append(card_id)
-    card_fusions_scrap(cards_ids)
+    card_fusions_scrp(cards_ids)
 
 if len(sys.argv) == 3 and (sys.argv[1] == '-l' or sys.argv[1] == '--list'):
     print('Listing card fusions...\n')
     entry_point_list_fusions()
 
 
-# Entry point: CLI without params (wizard)
-#def entry_point_cli_wizard():
-#    return
-
 if len(sys.argv) == 1:
     print_welcome_and_help()
-#    entry_point_cli_wizard()
+#    entry_point_gui()
