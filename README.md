@@ -32,9 +32,8 @@ command:
 You can compile it by yourself if you want to be sure.
 
 ## Installation and usage with Python 3
-Install Python 3.x and pip 3.
-Download the source code from latest release or clone this repository. Then place yourself on that folder.
-Open a terminal, move to the downloaded folder and run the following commands:
+Install Python 3.x and pip 3. Download the source code from latest release or clone this repository. Open a terminal, 
+move to the downloaded folder and run the following commands:
 
 ```python
 > python -m venv ./env  (Optional)
