@@ -10,6 +10,8 @@ jupyterlab = "*"
 requests = "==2.26.0"
 beautifulsoup4 = "==4.9.3"
 bs4 = "*"
+fastapi = "*"
+uvicorn = "*"
 
 [requires]
 python_version = "3.8"
