@@ -12,6 +12,11 @@ beautifulsoup4 = "==4.9.3"
 bs4 = "*"
 fastapi = "*"
 uvicorn = "*"
+psycopg2 = "*"
+python-dotenv = "*"
+jupyter = "*"
+sqlalchemy = "*"
+pipreqs = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.10"

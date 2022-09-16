@@ -7,6 +7,16 @@ import sys, requests
 from bs4 import BeautifulSoup
 from typing import List
 
+# URLs setup, this is the url for a Yu-Gi-Oh wiki
+BASE_URL = "https://yugipedia.com"
+# A list of fusion pages is made because the wiki splits the fusion list into multiple pages
+fusions_pages = [
+        BASE_URL + "/wiki/List_of_Yu-Gi-Oh!_Forbidden_Memories_Fusions_(001-200)",
+        BASE_URL + "/wiki/List_of_Yu-Gi-Oh!_Forbidden_Memories_Fusions_(201-400)",
+        BASE_URL + "/wiki/List_of_Yu-Gi-Oh!_Forbidden_Memories_Fusions_(401-600)",
+        BASE_URL + "/wiki/List_of_Yu-Gi-Oh!_Forbidden_Memories_Fusions_(601-722)"
+]
+
 # Scrapes Forbidden Memories wiki page for fusions and uses user input to return a fusion list
 # cards_ids is a list of card ids as strings
 # gui_mode is a superfluous parameter left in case a commit is made which introduces a GUI
@@ -16,16 +26,6 @@ def card_fusions_scrp(cards_ids: List[str], gui_mode=False) -> dict:
     if cards_ids == None or len(cards_ids) < 1:
         return {}
 
-    # URLs setup, this is the url for a Yu-Gi-Oh wiki
-    BASE_URL = "https://yugipedia.com"
-    # A list of fusion pages is made because the wiki splits the fusion list into multiple pages
-    fusions_pages = [
-        BASE_URL + "/wiki/List_of_Yu-Gi-Oh!_Forbidden_Memories_Fusions_(001-200)",
-        BASE_URL + "/wiki/List_of_Yu-Gi-Oh!_Forbidden_Memories_Fusions_(201-400)",
-        BASE_URL + "/wiki/List_of_Yu-Gi-Oh!_Forbidden_Memories_Fusions_(401-600)",
-        BASE_URL + "/wiki/List_of_Yu-Gi-Oh!_Forbidden_Memories_Fusions_(601-722)"
-    ]
-    
     # Commented code for possible ritual summon functionality
     # ritual_summons_page = BASE_URL + "/wiki/Yu-Gi-Oh!_Forbidden_Memories#Ritual_Summon"
 
@@ -53,7 +53,6 @@ def card_fusions_scrp(cards_ids: List[str], gui_mode=False) -> dict:
         soup variable is initialized by creating a BeautifulSoup object, with two parameters
         The first parameter is a Python get request that gets all of the content from fusion_page
         The second parameter is our selected parser, the html.parser that Python includes by default
-        (Second parameter may be superfluous?)
         '''
         soup = BeautifulSoup(requests.get(fusion_page).content, "html.parser")
         '''
@@ -69,14 +68,14 @@ def card_fusions_scrp(cards_ids: List[str], gui_mode=False) -> dict:
         for table in tables:
             '''
             merged_card is initialized by using find_previous to select the "Main Article" section above the fusion table
-            findChild is then used to select the HTML tag that names the resulting fusion above the fusion table
+            Then the HTML tag that names the resulting fusion above the fusion table is selected
             '''
-            merged_card = table.find_previous('div').findChild('a')
+            merged_card = table.find_previous('div').contents[1]
             '''
             merged_card is then redefined as a list of two strings 
             The first string is defined using the text that appears next to the "Main article:" text, below the numbering and
             naming of the fusion
-            '\' characters are removed (is this code necessary?)
+            '"' characters are removed (is this code necessary?)
             '(FMR)' is also removed from the string
             Lastly, any spaces at the beginning or end of the string are removed
             The second string specifies the URL that the hyperlinked fusion name text points to
@@ -109,7 +108,7 @@ def card_fusions_scrp(cards_ids: List[str], gui_mode=False) -> dict:
                 '''
                 Redefining col1 as a list that contains pairs of strings - card ids and card names
                 col1_elem.select('li') selects the tags that are formatted as #CARD_ID: "CARD_NAME"
-                Then we iterate through each of those tags using a list comprehension, removing '#' and '\' characters, 
+                Then we iterate through each of those tags using a list comprehension, removing '#' and '"' characters, 
                 stripping the string, and splitting it along the ':'
                 '''
                 col1 = [ele.text.replace('#', '').replace('\"', '').strip().split(': ', 1) for ele in col1_elem.select('li')]
