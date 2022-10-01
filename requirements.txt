@@ -1,6 +1,6 @@
 beautifulsoup4==4.11.1
 fastapi==0.85.0
-psycopg2==2.9.3
+psycopg2-binary==2.9.3
 pydantic==1.10.2
 python-dotenv==0.21.0
 requests==2.26.0
