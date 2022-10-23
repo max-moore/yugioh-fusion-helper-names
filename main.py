@@ -3,12 +3,12 @@
 # Ignacio Rodriguez Abraham (nacho.rodriguez.a@gmail.com)
 # Edited and updated by Maxwell Moore-Billings (maxwell.moorebillings@gmail.com)
 
+from typing import List
 from gc import get_debug
 import os, sys, requests
 from bs4 import BeautifulSoup
-from fastapi import Query
 
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 import crud, models, schemas
@@ -43,7 +43,7 @@ async def test_fusion(fusion_id: int, db: Session = Depends(get_db)):
     return db_fusion
 
 @app.get("/testfusionlist")
-async def test_fusionlist(user_hand: str, db: Session = Depends(get_db)):
+async def test_fusionlist(user_hand: List[int] = Query(default=[]), db: Session = Depends(get_db)):
     db_fusionlist = crud.fusion_calc(db, user_hand=user_hand)
     if db_fusionlist is None and db_fusionlist != []:
         raise HTTPException(status_code=404, detail="Fusion list not found")
