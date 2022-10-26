@@ -26,11 +26,12 @@ def fusion_calc(db: Session, user_hand: List[int]):
         for card in user_hand[hand_count:]:
             # search for fusions!
             material_two = card
-            fusion = db.query(models.Fusion.fusion_id).filter(
+            fusion_id = db.query(models.Fusion.fusion_id).filter(
                 and_(models.Fusion.material_one == material_one, models.Fusion.material_two == material_two)).first()
             # if we find a fusion and it isn't already in our list...
-            if fusion and fusion not in fusion_list:
+            if fusion_id and fusion_id not in fusion_list:
                 # then add it to our list
+                fusion = [f"Material One: {material_one}", f"Material Two: {material_two}", f"Fusion Result: {fusion_id}"]
                 fusion_list.append(fusion)
         # select the next card in hand for our first material
         hand_count += 1

@@ -47,6 +47,28 @@ def card_list_scrape() -> list:
    # return our full card list
     return(card_table_list)
 
+def material_checker(mc_mat1_options, mc_mat2_options, mc_card_name, mc_fusion_name, mc_fusion_list) -> list:
+    # formatting material strings
+    mc_mat1_options = [card1.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_') 
+    for card1 in mc_mat1_options]
+    mc_mat2_options = [card2.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_') 
+    for card2 in mc_mat2_options]
+    
+    # for each material 1...
+    for card in mc_mat1_options:
+        # if material 1 is the same card as our parameter for the function...
+        if mc_card_name == card:
+            # append an item to our fusion list, a list containing a list of material 2 options and the name of our fusion
+            mc_fusion_list.append([mc_mat2_options, mc_fusion_name])
+    # for each material 2...
+    for card in mc_mat2_options:
+        # if material 2 is the same card as our parameter for the function...
+        if mc_card_name == card:
+            # append an item to our fusion list, a list containing a list of material 1 options and the name of our fusion
+            mc_fusion_list.append([mc_mat1_options, mc_fusion_name])
+
+    return mc_fusion_list
+
 # function to create a list of all possible fusions that can be made using a particular card by scraping from the wiki
 def fusion_material_scrape(card_name) -> list:
     fusion_list = []
@@ -63,27 +85,36 @@ def fusion_material_scrape(card_name) -> list:
             fusion_name = fusion_name.translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
             # selecting a section for each possible way to make a particular fusion
             materials = table.find_all('tr')[1:]
-            # for each material within each section...
+             # for each material within each section...
             for material_option in materials:
                 # make a formatted list of materials that can be used as material one and two
                 material_one_options = material_option.find_next('td').find_all('li')
                 material_two_options = material_option.find_next('td').find_next('td').find_all('li')
+            # checking combinations for any possible fusions and appending them to our list
+            fusion_list = material_checker(material_one_options, material_two_options, card_name, fusion_name, fusion_list)
+    
+    # creating a soup object that scrapes the glitch fusion page on the wiki
+    soup = BeautifulSoup(requests.get("https://yugipedia.com/wiki/Glitch_fusion").content, "html.parser")
+    glitch_table = soup.find_all('table', attrs={'class':'wikitable'})
 
-                material_one_options = [card1.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_') for card1 in material_one_options]
-                material_two_options = [card2.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_') for card2 in material_two_options]
+    glitch_fusion_list = glitch_table.find_all('tr')[1:]
+    
+    # iterating through each listed fusion
+    for fusion in glitch_fusion_list:
+        # pulling and formatting the materials and results for each fusion
+        result = fusion.find_next('td')
+        material_one = fusion.find_next('td').find_next('td')
+        material_two = fusion.find_next('td').find_next('td').find_next('td')
+        result = result.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
+        material_one = material_one.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
+        material_two = material_two.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
 
-                # for each material 1...
-                for card in material_one_options:
-                    # if material 1 is the same card as our parameter for the function...
-                    if card_name == card:
-                        # append an item to our fusion list, a list containing a list of material 2 options and the name of our fusion
-                        fusion_list.append([material_two_options, fusion_name])
-                # for each material 2...
-                for card in material_two_options:
-                    # if material 2 is the same card as our parameter for the function...
-                    if card_name == card:
-                        # append an item to our fusion list, a list containing a list of material 1 options and the name of our fusion
-                        fusion_list.append([material_one_options, fusion_name])
+        # checking for matches and appending them to our list
+        if card_name == material_one:
+            fusion_list.append([material_two, result])
+        elif card_name == material_two:
+            fusion_list.append([material_one, result])
+
     # return the fusion list
     return(fusion_list)
 
