@@ -82,7 +82,10 @@ def fusion_material_scrape(card_name) -> list:
         for table in tables:
             # create a fusion_name variable by formatting the name of the fusion from the wiki
             fusion_name = table.find_previous('div').a.text.lower().replace(' (fmr)', '')
-            fusion_name = fusion_name.translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
+            fusion_name = fusion_name.translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')    
+
+            if "mystical_sheep" in fusion_name:
+                fusion_name = "mystical_sheep_1"
             # selecting a section for each possible way to make a particular fusion
             materials = table.find_all('tr')[1:]
              # for each material within each section...
@@ -95,17 +98,36 @@ def fusion_material_scrape(card_name) -> list:
     
     # creating a soup object that scrapes the glitch fusion page on the wiki
     soup = BeautifulSoup(requests.get("https://yugipedia.com/wiki/Glitch_fusion").content, "html.parser")
-    glitch_table = soup.find_all('table', attrs={'class':'wikitable'})
+    glitch_table = soup.find('table', attrs={'class':'wikitable'})
 
     glitch_fusion_list = glitch_table.find_all('tr')[1:]
-    
+
+    # these row variables are used as counts for the amount of listed combinations for a particular fusion
+    result_row_amounts = [3, 1, 4, 1, 2, 4]
+    current_row = [3, 1, 4, 1, 2, 4]
+    # keeps track of which fusion we're currently checking
+    fusion_index = 0
     # iterating through each listed fusion
     for fusion in glitch_fusion_list:
+        # if we've iterated through all combinations for the current fusion, then increment our fusion index
+        if current_row[fusion_index] == 0:
+            fusion_index += 1
         # pulling and formatting the materials and results for each fusion
-        result = fusion.find_next('td')
-        material_one = fusion.find_next('td').find_next('td')
-        material_two = fusion.find_next('td').find_next('td').find_next('td')
-        result = result.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
+        # if we're selecting the first combination for a listed fusion, then grab the name of the fusion and assign it to result
+        if current_row[fusion_index] == result_row_amounts[fusion_index]:
+            result = fusion.find_next('td')
+            result = result.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
+
+            material_one = fusion.find_next('td').find_next('td')
+            material_two = fusion.find_next('td').find_next('td').find_next('td')
+        else:
+            material_one = fusion.find_next('td')
+            material_two = fusion.find_next('td').find_next('td')
+
+        # decrement our current row count
+        current_row[fusion_index] -= 1
+
+        # string formatting our materials
         material_one = material_one.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
         material_two = material_two.a.string.lower().translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
 
@@ -168,6 +190,7 @@ def fusion_table_populate(card_name_list, cursor):
 
     # for each card in our full list of cards scraped from the wiki
     for card in card_name_list:
+        print(card)
         # grab a list of possible fusions using our fusion_material_scrape function
         fusion_list = fusion_material_scrape(card)
 
@@ -179,16 +202,38 @@ def fusion_table_populate(card_name_list, cursor):
         # for each fusion in our list of possible fusions for our selected card...
         for fusion in fusion_list:
             # grab the id of the possible fusion
+            print(fusion[1])
             select_result_id = f"SELECT card_id FROM scraped_card_list WHERE card_name='{fusion[1]}'"
             cursor.execute(select_result_id)
             result_id = cursor.fetchall()[0][0]
 
-            # for each material that can be used as a second material for the possible fusion...
-            for material_two in fusion[0]:
-                # grab the id of the second material
+            if type(fusion[0]) is not str:
+                # for each material that can be used as a second material for the possible fusion...
+                for material_two in fusion[0]:
+                    # grab the id of the second material
+                    select_material_two_id = f"SELECT card_id FROM scraped_card_list WHERE card_name='{material_two}'"
+                    cursor.execute(select_material_two_id)
+                    print(material_two)
+                    material_two_test_id = cursor.fetchall()
+                    print(material_two_test_id)
+                    material_two_id = material_two_test_id[0][0]
+
+                    # insert a new record with our unique fusion id, the ids for materials used for the fusion, and the resulting fusion id
+                    insert_fusion_sql = f"INSERT INTO fusion_list (fusion_id, material_one, material_two, result) VALUES ({fusion_id_count}, {material_one_id}, {material_two_id}, {result_id})"                
+                    cursor.execute(insert_fusion_sql)
+
+                    # prints for testing purposes and displaying progress while adding records to our database
+                    print(f"entry added - {card}, {material_two}, {fusion[1]}")
+                    print(f"fusion count {fusion_id_count}")
+                    fusion_id_count += 1
+            else:
+                material_two = fusion[0]
                 select_material_two_id = f"SELECT card_id FROM scraped_card_list WHERE card_name='{material_two}'"
                 cursor.execute(select_material_two_id)
-                material_two_id = cursor.fetchall()[0][0]
+                print(material_two)
+                material_two_test_id = cursor.fetchall()
+                print(material_two_test_id)
+                material_two_id = material_two_test_id[0][0]
 
                 # insert a new record with our unique fusion id, the ids for materials used for the fusion, and the resulting fusion id
                 insert_fusion_sql = f"INSERT INTO fusion_list (fusion_id, material_one, material_two, result) VALUES ({fusion_id_count}, {material_one_id}, {material_two_id}, {result_id})"                
