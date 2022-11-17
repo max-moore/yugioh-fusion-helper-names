@@ -31,7 +31,7 @@ def fusion_calc(db: Session, user_hand: List[int]):
             # if we find a fusion and it isn't already in our list...
             if fusion_id and fusion_id not in fusion_list:
                 # then add it to our list
-                fusion = [f"Material One: {material_one}", f"Material Two: {material_two}", f"Fusion Result: {fusion_id}"]
+                fusion = [f"Material One: {material_one}", f"Material Two: {material_two}", f"Fusion Result: {fusion_id[0]}"]
                 fusion_list.append(fusion)
         # select the next card in hand for our first material
         hand_count += 1
